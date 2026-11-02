@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\StockMovementController;
 
 Route::apiResource('categories', CategoryController::class);
 Route::apiResource('products', ProductController::class);
+Route::get('/products/barcode/{barcode}', [ProductController::class, 'findByBarcode']);
 Route::apiResource('suppliers', SupplierController::class);
 
 Route::get('stock-movements', [StockMovementController::class, 'index']);

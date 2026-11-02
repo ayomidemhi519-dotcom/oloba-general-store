@@ -1,4 +1,4 @@
-
+import POS from '../pages/POS.vue';
 import { createRouter, createWebHistory } from 'vue-router';
 
 import Dashboard from '../pages/Dashboard.vue';
@@ -19,6 +19,11 @@ const routes = [
                 path: '/products',
                 name: 'products',
                 component: Products,
+            },
+            {
+                path: '/pos',
+                name: 'pos',
+                component: POS,
             },
         ],
     },

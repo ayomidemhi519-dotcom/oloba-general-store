@@ -10,9 +10,16 @@ use Illuminate\Validation\Rule;
 
 class ProductController extends Controller
 {
-    public function index(): JsonResponse
+        public function index(Request $request): JsonResponse
     {
+        $search = $request->search;
+
         $products = Product::with(['category', 'suppliers'])
+            ->when($search, function ($query) use ($search) {
+                $query->where('name', 'like', "%{$search}%")
+                    ->orWhere('sku', 'like', "%{$search}%")
+                    ->orWhere('barcode', 'like', "%{$search}%");
+            })
             ->latest()
             ->get();
 
@@ -123,4 +130,24 @@ class ProductController extends Controller
             'data' => $products,
         ]);
     }
+
+
+    public function findByBarcode(string $barcode): JsonResponse
+    {
+        $product = Product::where('barcode', $barcode)->first();
+
+        if (!$product) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Product not found for this barcode.',
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Product retrieved successfully.',
+            'data' => $product,
+        ]);
+    }
+
 }

@@ -43,6 +43,17 @@
                 Products
             </router-link>
 
+            
+            <router-link
+                to="/pos"
+                active-class="bg-blue-600 text-white shadow-lg shadow-blue-950/30"
+                class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-slate-300 transition hover:bg-slate-800 hover:text-white"
+            >
+                <ShoppingCart :size="19" />
+                Point of Sale
+            </router-link>
+
+
             <router-link
                 to="/categories"
                 active-class="bg-blue-600 text-white shadow-lg shadow-blue-950/30"
