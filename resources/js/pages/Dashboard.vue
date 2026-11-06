@@ -1,15 +1,17 @@
 
 <template>
-    <div class="space-y-8">
+    <div class="dashboard-shell space-y-8">
         <!-- Page heading -->
         <section class="flex flex-wrap items-center justify-between gap-4">
             <div>
                 <p class="text-sm text-slate-500">
                     Overview / Dashboard
                 </p>
+
                 <h1 class="mt-2 text-2xl font-bold text-slate-900 md:text-3xl">
                     Welcome back!
                 </h1>
+
                 <p class="mt-2 text-sm text-slate-500">
                     Here's what's happening at your store today.
                 </p>
@@ -42,11 +44,14 @@
         >
             <div class="flex items-start gap-3">
                 <TriangleAlert :size="22" class="mt-1 shrink-0" />
+
                 <div>
                     <h2 class="font-semibold">
                         Unable to load dashboard data
                     </h2>
+
                     <p class="mt-1 text-sm">{{ error }}</p>
+
                     <button
                         type="button"
                         @click="loadDashboard"
@@ -62,11 +67,12 @@
             <!-- Statistics cards -->
             <section class="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
                 <!-- Products -->
-                <article class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md">
+                <article class="dashboard-stat-card rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
                     <div class="flex items-center justify-between">
                         <div class="rounded-xl bg-blue-50 p-3 text-blue-600">
                             <Package :size="25" :stroke-width="1.8" />
                         </div>
+
                         <span class="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
                             Inventory
                         </span>
@@ -75,20 +81,23 @@
                     <p class="mt-5 text-sm font-medium text-slate-500">
                         Total Products
                     </p>
+
                     <p class="mt-2 text-3xl font-bold text-slate-900">
                         {{ products.length }}
                     </p>
+
                     <p class="mt-2 text-xs text-slate-500">
                         Products recorded in your store
                     </p>
                 </article>
 
                 <!-- Revenue -->
-                <article class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md">
+                <article class="dashboard-stat-card rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
                     <div class="flex items-center justify-between">
                         <div class="rounded-xl bg-emerald-50 p-3 text-emerald-600">
                             <Wallet :size="25" :stroke-width="1.8" />
                         </div>
+
                         <span class="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
                             Revenue
                         </span>
@@ -97,20 +106,23 @@
                     <p class="mt-5 text-sm font-medium text-slate-500">
                         Total Revenue
                     </p>
+
                     <p class="mt-2 break-words text-2xl font-bold text-slate-900">
                         {{ formatCurrency(totalRevenue) }}
                     </p>
+
                     <p class="mt-2 text-xs text-slate-500">
                         Sum of recorded sale totals
                     </p>
                 </article>
 
                 <!-- Sales -->
-                <article class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md">
+                <article class="dashboard-stat-card rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
                     <div class="flex items-center justify-between">
                         <div class="rounded-xl bg-violet-50 p-3 text-violet-600">
                             <ShoppingCart :size="25" :stroke-width="1.8" />
                         </div>
+
                         <span class="rounded-full bg-violet-50 px-3 py-1 text-xs font-semibold text-violet-700">
                             Transactions
                         </span>
@@ -119,20 +131,23 @@
                     <p class="mt-5 text-sm font-medium text-slate-500">
                         Total Sales
                     </p>
+
                     <p class="mt-2 text-3xl font-bold text-slate-900">
                         {{ sales.length }}
                     </p>
+
                     <p class="mt-2 text-xs text-slate-500">
                         Recorded sales transactions
                     </p>
                 </article>
 
                 <!-- Low stock -->
-                <article class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md">
+                <article class="dashboard-stat-card rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
                     <div class="flex items-center justify-between">
                         <div class="rounded-xl bg-amber-50 p-3 text-amber-600">
                             <TriangleAlert :size="25" :stroke-width="1.8" />
                         </div>
+
                         <span class="rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700">
                             Attention
                         </span>
@@ -141,9 +156,11 @@
                     <p class="mt-5 text-sm font-medium text-slate-500">
                         Low-stock Products
                     </p>
+
                     <p class="mt-2 text-3xl font-bold text-amber-600">
                         {{ lowStockProducts.length }}
                     </p>
+
                     <p class="mt-2 text-xs text-slate-500">
                         Products needing attention
                     </p>
@@ -159,6 +176,7 @@
                             <h2 class="font-bold text-slate-900">
                                 Recent Sales
                             </h2>
+
                             <p class="mt-1 text-sm text-slate-500">
                                 Latest recorded transactions
                             </p>
@@ -171,9 +189,11 @@
 
                     <div v-if="sales.length === 0" class="p-8 text-center">
                         <ShoppingCart :size="34" class="mx-auto text-slate-300" />
+
                         <p class="mt-3 font-medium text-slate-700">
                             No sales recorded yet
                         </p>
+
                         <p class="mt-1 text-sm text-slate-500">
                             Recorded transactions will appear here.
                         </p>
@@ -188,6 +208,7 @@
                                     <th class="px-6 py-4 font-semibold">Amount</th>
                                 </tr>
                             </thead>
+
                             <tbody>
                                 <tr
                                     v-for="sale in recentSales"
@@ -197,9 +218,11 @@
                                     <td class="whitespace-nowrap px-6 py-4 font-medium text-slate-800">
                                         {{ sale.invoice_number || `Sale #${sale.id}` }}
                                     </td>
+
                                     <td class="whitespace-nowrap px-6 py-4 text-slate-500">
                                         {{ formatDate(sale.created_at) }}
                                     </td>
+
                                     <td class="whitespace-nowrap px-6 py-4 font-semibold text-emerald-600">
                                         {{ formatCurrency(Number(sale.total || 0)) }}
                                     </td>
@@ -222,10 +245,12 @@
                             <h2 class="font-bold text-slate-900">
                                 Low-stock Alerts
                             </h2>
+
                             <p class="mt-1 text-sm text-slate-500">
                                 Restocking reminders
                             </p>
                         </div>
+
                         <span class="rounded-lg bg-amber-50 px-3 py-2 text-sm font-bold text-amber-700">
                             {{ lowStockProducts.length }}
                         </span>
@@ -234,9 +259,11 @@
                     <div v-if="lowStockProducts.length === 0" class="p-6">
                         <div class="rounded-xl bg-emerald-50 p-4">
                             <CheckCircle :size="23" class="text-emerald-600" />
+
                             <p class="mt-2 font-semibold text-emerald-800">
                                 All clear!
                             </p>
+
                             <p class="mt-1 text-sm text-emerald-700">
                                 No products are currently at or below their stock limits.
                             </p>
@@ -254,14 +281,17 @@
                                     <p class="truncate text-sm font-semibold text-slate-800">
                                         {{ product.name }}
                                     </p>
+
                                     <p class="mt-1 text-xs text-slate-500">
                                         SKU: {{ product.sku || 'N/A' }}
                                     </p>
                                 </div>
+
                                 <span class="shrink-0 rounded-lg bg-red-50 px-2 py-1 text-xs font-bold text-red-700">
                                     {{ product.stock_quantity }} left
                                 </span>
                             </div>
+
                             <p class="mt-2 text-xs text-slate-500">
                                 Stock limit: {{ product.low_stock_level }}
                             </p>
@@ -277,6 +307,7 @@
                         <h2 class="font-bold text-slate-900">
                             Inventory Overview
                         </h2>
+
                         <p class="mt-1 text-sm text-slate-500">
                             A quick look at your recorded inventory.
                         </p>
@@ -294,6 +325,7 @@
                             <Boxes :size="18" />
                             <p class="text-sm">Total Stock Units</p>
                         </div>
+
                         <p class="mt-3 text-2xl font-bold text-slate-900">
                             {{ totalStockUnits.toLocaleString() }}
                         </p>
@@ -304,6 +336,7 @@
                             <CheckCircle :size="18" />
                             <p class="text-sm">Products In Stock</p>
                         </div>
+
                         <p class="mt-3 text-2xl font-bold text-emerald-700">
                             {{ productsInStock }}
                         </p>
@@ -314,6 +347,7 @@
                             <XCircle :size="18" />
                             <p class="text-sm">Out-of-stock Products</p>
                         </div>
+
                         <p class="mt-3 text-2xl font-bold text-red-700">
                             {{ outOfStockProducts }}
                         </p>
@@ -326,6 +360,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
+
 import {
     Package,
     Wallet,
@@ -342,6 +377,7 @@ import api from '../services/api';
 const products = ref([]);
 const sales = ref([]);
 const lowStockProducts = ref([]);
+
 const loading = ref(true);
 const hasLoaded = ref(false);
 const error = ref('');
@@ -432,3 +468,84 @@ async function loadDashboard() {
 
 onMounted(loadDashboard);
 </script>
+
+<style scoped>
+.dashboard-shell {
+    position: relative;
+    isolation: isolate;
+    perspective: 1200px;
+}
+
+.dashboard-shell::before,
+.dashboard-shell::after {
+    content: "";
+    position: absolute;
+    width: 220px;
+    height: 220px;
+    border-radius: 50%;
+    filter: blur(90px);
+    opacity: 0.13;
+    pointer-events: none;
+    z-index: -1;
+}
+
+.dashboard-shell::before {
+    top: 20px;
+    right: 5%;
+    background: #2563eb;
+    animation: dashboard-glow 8s ease-in-out infinite alternate;
+}
+
+.dashboard-shell::after {
+    bottom: 10%;
+    left: 0;
+    background: #06b6d4;
+    animation: dashboard-glow 10s ease-in-out infinite alternate-reverse;
+}
+
+@keyframes dashboard-glow {
+    from {
+        transform: translate3d(0, 0, 0) scale(1);
+    }
+
+    to {
+        transform: translate3d(20px, 25px, 0) scale(1.2);
+    }
+}
+
+.dashboard-stat-card {
+    position: relative;
+    transform-style: preserve-3d;
+    transition:
+        transform 0.4s ease,
+        box-shadow 0.4s ease,
+        border-color 0.4s ease;
+}
+
+.dashboard-stat-card:hover {
+    transform: translateY(-7px) rotateX(2deg) rotateY(-2deg);
+    border-color: #38bdf8;
+    box-shadow:
+        0 15px 35px rgba(37, 99, 235, 0.12),
+        0 0 18px rgba(6, 182, 212, 0.12);
+}
+
+.dashboard-stat-card > * {
+    transform: translateZ(12px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .dashboard-stat-card {
+        transition: none;
+    }
+
+    .dashboard-stat-card:hover {
+        transform: none;
+    }
+
+    .dashboard-shell::before,
+    .dashboard-shell::after {
+        animation: none;
+    }
+}
+</style>
