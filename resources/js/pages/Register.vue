@@ -101,6 +101,7 @@ const loading = ref(false)
 const error = ref('')
 const success = ref('')
 
+
 const register = async () => {
   error.value = ''
   success.value = ''
@@ -113,23 +114,29 @@ const register = async () => {
   loading.value = true
 
   try {
-    await api.post('/register', form)
+    const response = await api.post('/register', form)
 
-    success.value = 'Account created successfully! You can now log in.'
+    localStorage.setItem('auth_token', response.data.token)
+    localStorage.setItem('auth_user', JSON.stringify(response.data.user))
+
+    success.value = 'Account created successfully!'
 
     setTimeout(() => {
-      router.push('/login')
+      router.push('/dashboard')
     }, 1200)
+
   } catch (err) {
     const errors = err.response?.data?.errors
 
     error.value = errors
       ? Object.values(errors).flat().join(' ')
       : err.response?.data?.message || 'Registration failed. Please try again.'
+
   } finally {
     loading.value = false
   }
 }
+
 </script>
 
 <style scoped>
@@ -174,18 +181,12 @@ const register = async () => {
   padding: 38px;
   position: relative;
   z-index: 1;
-  border: 1px solid rgba(96, 165, 250, 0.2);
+  border: none;
   border-radius: 24px;
   background: rgba(15, 27, 49, 0.82);
   backdrop-filter: blur(20px);
   box-shadow: 0 25px 80px rgba(0, 0, 0, 0.4);
   animation: cardEnter 0.8s cubic-bezier(.2,.8,.2,1) both;
-  transition: transform 0.35s ease, box-shadow 0.35s ease;
-}
-
-.auth-card:hover {
-  transform: perspective(1000px) rotateX(1deg) rotateY(-1deg) translateY(-4px);
-  box-shadow: 0 30px 90px rgba(0, 119, 255, 0.2);
 }
 
 .auth-brand {

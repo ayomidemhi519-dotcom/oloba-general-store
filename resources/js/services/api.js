@@ -9,4 +9,15 @@ const api = axios.create({
     },
 });
 
+// Attach the saved authentication token to API requests.
+api.interceptors.request.use((config) => {
+    const token = localStorage.getItem('auth_token');
+
+    if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    return config;
+});
+
 export default api;

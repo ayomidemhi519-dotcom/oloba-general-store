@@ -1,11 +1,14 @@
+
 import POS from '../pages/POS.vue';
 import { createRouter, createWebHistory } from 'vue-router';
 
+import Register from '../pages/Register.vue';
 import Dashboard from '../pages/Dashboard.vue';
 import Products from '../pages/Products.vue';
 import DashboardLayout from '../layouts/DashboardLayout.vue';
 
 const routes = [
+    // Dashboard pages (with sidebar and navbar)
     {
         path: '/',
         component: DashboardLayout,
@@ -16,16 +19,23 @@ const routes = [
                 component: Dashboard,
             },
             {
-                path: '/products',
+                path: 'products',
                 name: 'products',
                 component: Products,
             },
             {
-                path: '/pos',
+                path: 'pos',
                 name: 'pos',
                 component: POS,
             },
         ],
+    },
+
+    // Authentication pages (without sidebar and navbar)
+    {
+        path: '/register',
+        name: 'register',
+        component: Register,
     },
 ];
 
