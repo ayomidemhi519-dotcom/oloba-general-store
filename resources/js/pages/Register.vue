@@ -53,6 +53,7 @@
             required
           />
         </div>
+        
 
         <div class="form-group">
           <label for="password_confirmation">Confirm Password</label>
