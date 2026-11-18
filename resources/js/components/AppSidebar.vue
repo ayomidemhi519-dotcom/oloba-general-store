@@ -1,6 +1,9 @@
 
 <template>
-    <aside class="flex min-h-screen w-64 shrink-0 flex-col bg-slate-950 text-white">
+   <aside
+    class="fixed inset-y-0 left-0 z-40 flex min-h-screen w-64 shrink-0 flex-col bg-slate-950 text-white transition-transform duration-300 md:sticky md:top-0 md:translate-x-0"
+    :class="isOpen ? 'translate-x-0' : '-translate-x-full'"
+>
         <!-- Brand -->
         <div class="border-b border-slate-800 px-6 py-6">
             <div class="flex items-center gap-3">
@@ -20,7 +23,10 @@
         </div>
 
         <!-- Navigation -->
-        <nav class="flex-1 space-y-2 px-4 py-6">
+        <nav
+    class="flex-1 space-y-2 overflow-y-auto px-4 py-6"
+    @click="emit('close')"
+>
             <p class="mb-4 px-3 text-xs font-semibold uppercase tracking-widest text-slate-500">
                 Main Menu
             </p>
@@ -43,7 +49,7 @@
                 Products
             </router-link>
 
-            
+
             <router-link
                 to="/pos"
                 active-class="bg-blue-600 text-white shadow-lg shadow-blue-950/30"
@@ -125,6 +131,14 @@
 </template>
 
 <script setup>
+const props = defineProps({
+    isOpen: {
+        type: Boolean,
+        default: false,
+    },
+});
+
+const emit = defineEmits(['close']);
 import {
     Store,
     LayoutDashboard,

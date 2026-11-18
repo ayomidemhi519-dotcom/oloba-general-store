@@ -2,31 +2,55 @@
 <template>
     <div class="dashboard-shell space-y-8">
         <!-- Page heading -->
-        <section class="flex flex-wrap items-center justify-between gap-4">
-            <div>
-                <p class="text-sm text-slate-500">
-                    Overview / Dashboard
-                </p>
 
-                <h1 class="mt-2 text-2xl font-bold text-slate-900 md:text-3xl">
-                    Welcome back!
-                </h1>
 
-                <p class="mt-2 text-sm text-slate-500">
-                    Here's what's happening at your store today.
-                </p>
-            </div>
 
-            <button
-                type="button"
-                @click="loadDashboard"
-                :disabled="loading"
-                class="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-                <RefreshCw :size="17" :class="{ 'animate-spin': loading }" />
+<section class="space-y-4">
+    <div class="flex items-start justify-between gap-3">
+        <!-- Welcome message -->
+        <div class="min-w-0">
+            <p class="text-sm text-slate-500">
+                Overview / Dashboard
+            </p>
+
+            <h1 class="mt-2 text-xl font-bold text-slate-900 sm:text-2xl md:text-3xl">
+                Welcome back!
+            </h1>
+
+            <p class="mt-2 text-xs text-slate-500 sm:text-sm">
+                Here's what's happening at your store today.
+            </p>
+        </div>
+
+        <!-- Refresh button -->
+        <button
+            type="button"
+            @click="loadDashboard"
+            :disabled="loading"
+            class="mt-7 inline-flex shrink-0 items-center gap-2 rounded-lg bg-blue-600 px-3 py-2.5 text-xs font-semibold text-white shadow-sm transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60 sm:px-4 sm:text-sm"
+        >
+            <RefreshCw
+                :size="16"
+                :class="{ 'animate-spin': loading }"
+            />
+            <span class="hidden sm:inline">
                 {{ loading ? 'Refreshing...' : 'Refresh Data' }}
-            </button>
-        </section>
+            </span>
+            <span class="sm:hidden">Refresh</span>
+        </button>
+    </div>
+
+    <!-- Date and time -->
+    <div class="flex flex-wrap items-center gap-2 text-xs text-slate-500 sm:text-sm">
+        <span>{{ formattedDate }}</span>
+        <span class="text-slate-300">•</span>
+        <span class="font-semibold text-slate-700">
+            {{ formattedTime }}
+        </span>
+    </div>
+</section>
+
+
 
         <!-- Loading state -->
         <div
@@ -359,7 +383,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 
 import {
     Package,
@@ -381,6 +405,27 @@ const lowStockProducts = ref([]);
 const loading = ref(true);
 const hasLoaded = ref(false);
 const error = ref('');
+const currentDateTime = ref(new Date());
+
+let clockInterval;
+
+const formattedDate = computed(() => {
+    return new Intl.DateTimeFormat('en-NG', {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+    }).format(currentDateTime.value);
+});
+
+const formattedTime = computed(() => {
+    return new Intl.DateTimeFormat('en-NG', {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true,
+    }).format(currentDateTime.value);
+});
 
 const totalRevenue = computed(() => {
     return sales.value.reduce((total, sale) => {
@@ -466,86 +511,22 @@ async function loadDashboard() {
     }
 }
 
-onMounted(loadDashboard);
+onMounted(() => {
+    loadDashboard();
+
+    clockInterval = setInterval(() => {
+        currentDateTime.value = new Date();
+    }, 1000);
+});
+
+onUnmounted(() => {
+    clearInterval(clockInterval);
+});
 </script>
+
 
 <style scoped>
 .dashboard-shell {
     position: relative;
-    isolation: isolate;
-    perspective: 1200px;
-}
-
-.dashboard-shell::before,
-.dashboard-shell::after {
-    content: "";
-    position: absolute;
-    width: 220px;
-    height: 220px;
-    border-radius: 50%;
-    filter: blur(90px);
-    opacity: 0.13;
-    pointer-events: none;
-    z-index: -1;
-}
-
-.dashboard-shell::before {
-    top: 20px;
-    right: 5%;
-    background: #2563eb;
-    animation: dashboard-glow 8s ease-in-out infinite alternate;
-}
-
-.dashboard-shell::after {
-    bottom: 10%;
-    left: 0;
-    background: #06b6d4;
-    animation: dashboard-glow 10s ease-in-out infinite alternate-reverse;
-}
-
-@keyframes dashboard-glow {
-    from {
-        transform: translate3d(0, 0, 0) scale(1);
-    }
-
-    to {
-        transform: translate3d(20px, 25px, 0) scale(1.2);
-    }
-}
-
-.dashboard-stat-card {
-    position: relative;
-    transform-style: preserve-3d;
-    transition:
-        transform 0.4s ease,
-        box-shadow 0.4s ease,
-        border-color 0.4s ease;
-}
-
-.dashboard-stat-card:hover {
-    transform: translateY(-7px) rotateX(2deg) rotateY(-2deg);
-    border-color: #38bdf8;
-    box-shadow:
-        0 15px 35px rgba(37, 99, 235, 0.12),
-        0 0 18px rgba(6, 182, 212, 0.12);
-}
-
-.dashboard-stat-card > * {
-    transform: translateZ(12px);
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .dashboard-stat-card {
-        transition: none;
-    }
-
-    .dashboard-stat-card:hover {
-        transform: none;
-    }
-
-    .dashboard-shell::before,
-    .dashboard-shell::after {
-        animation: none;
-    }
 }
 </style>
