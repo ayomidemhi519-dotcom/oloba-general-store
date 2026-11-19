@@ -89,7 +89,7 @@
 
         <template v-else>
             <!-- Statistics cards -->
-            <section class="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
+            <section class="grid grid-cols-2 gap-3 sm:gap-5 xl:grid-cols-4">
                 <!-- Products -->
                 <article class="dashboard-stat-card rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
                     <div class="flex items-center justify-between">
@@ -191,11 +191,99 @@
                 </article>
             </section>
 
+            <!-- Sales Performance Chart -->
+<section class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
+    <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
+        <div>
+            <h2 class="text-lg font-bold text-slate-900">
+                Sales Performance
+            </h2>
+            <p class="mt-1 text-sm text-slate-500">
+                Revenue generated over the last 7 days
+            </p>
+        </div>
+
+        <div class="rounded-lg bg-blue-50 px-3 py-2">
+            <span class="text-xs font-medium text-blue-700">
+                Last 7 days
+            </span>
+        </div>
+    </div>
+
+    <div v-if="!loading" class="space-y-4">
+        <!-- Chart -->
+        <div class="flex h-64 items-end gap-2 sm:gap-4">
+            <div
+                v-for="(day, index) in salesChartData"
+                :key="index"
+                class="flex h-full min-w-0 flex-1 flex-col items-center justify-end"
+            >
+                <!-- Revenue -->
+                <div class="mb-2 text-center">
+                    <span
+                        class="text-[9px] font-semibold text-slate-500 sm:text-xs"
+                    >
+                        {{ day.revenue > 0 ? formatCurrency(day.revenue) : '₦0' }}
+                    </span>
+                </div>
+
+                <!-- Bar -->
+                <div class="flex w-full flex-1 items-end justify-center">
+                    <div
+                        class="w-full max-w-12 rounded-t-lg bg-blue-500 transition-all duration-300 hover:bg-blue-600"
+                        :style="{
+                            height: `${Math.max(
+                                day.revenue > 0
+                                    ? (day.revenue / Math.max(...salesChartData.map(item => item.revenue), 1)) * 100
+                                    : 0,
+                                day.revenue > 0 ? 8 : 0
+                            )}%`,
+                        }"
+                        :title="`${formatCurrency(day.revenue)} - ${day.count} sales`"
+                    ></div>
+                </div>
+
+                <!-- Day -->
+                <span class="mt-3 text-xs font-medium text-slate-500">
+                    {{ day.label }}
+                </span>
+            </div>
+        </div>
+
+        <!-- Chart Bottom Info -->
+        <div class="flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-4">
+            <div class="flex items-center gap-2">
+                <span class="h-3 w-3 rounded-sm bg-blue-500"></span>
+                <span class="text-xs text-slate-500">Daily Revenue</span>
+            </div>
+
+            <div class="text-right">
+                <p class="text-xs text-slate-500">7-day revenue</p>
+                <p class="text-sm font-bold text-slate-900">
+                    {{ formatCurrency(
+                        salesChartData.reduce((total, day) => total + day.revenue, 0)
+                    ) }}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading -->
+    <div
+        v-else
+        class="flex h-64 items-center justify-center"
+    >
+        <p class="text-sm text-slate-500">
+            Loading sales performance...
+        </p>
+    </div>
+</section>
+
             <!-- Recent sales and low-stock alerts -->
             <section class="grid grid-cols-1 gap-6 xl:grid-cols-3">
                 <!-- Recent sales -->
                 <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm xl:col-span-2">
-                    <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-6 py-5">
+                    <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-4 py-4 sm:px-6 sm:py-5">
                         <div>
                             <h2 class="font-bold text-slate-900">
                                 Recent Sales
@@ -239,15 +327,15 @@
                                     :key="sale.id"
                                     class="border-t border-slate-100 transition hover:bg-slate-50"
                                 >
-                                    <td class="whitespace-nowrap px-6 py-4 font-medium text-slate-800">
+                                    <td class="whitespace-nowrap px-3 py-4 font-medium text-slate-800 sm:px-6">
                                         {{ sale.invoice_number || `Sale #${sale.id}` }}
                                     </td>
 
-                                    <td class="whitespace-nowrap px-6 py-4 text-slate-500">
+                                    <td class="whitespace-nowrap px-3 py-4 text-slate-500 sm:px-6">
                                         {{ formatDate(sale.created_at) }}
                                     </td>
 
-                                    <td class="whitespace-nowrap px-6 py-4 font-semibold text-emerald-600">
+                                    <td class="whitespace-nowrap px-3 py-4 font-semibold text-emerald-600 sm:px-6">
                                         {{ formatCurrency(Number(sale.total || 0)) }}
                                     </td>
                                 </tr>
@@ -409,6 +497,10 @@ const currentDateTime = ref(new Date());
 
 let clockInterval;
 
+// ==============================
+// DATE & TIME
+// ==============================
+
 const formattedDate = computed(() => {
     return new Intl.DateTimeFormat('en-NG', {
         weekday: 'long',
@@ -426,6 +518,10 @@ const formattedTime = computed(() => {
         hour12: true,
     }).format(currentDateTime.value);
 });
+
+// ==============================
+// DASHBOARD STATISTICS
+// ==============================
 
 const totalRevenue = computed(() => {
     return sales.value.reduce((total, sale) => {
@@ -459,6 +555,53 @@ const outOfStockProducts = computed(() => {
     ).length;
 });
 
+// ==============================
+// SALES PERFORMANCE CHART DATA
+// ==============================
+
+const salesChartData = computed(() => {
+    const days = [];
+
+    for (let i = 6; i >= 0; i--) {
+        const date = new Date();
+        date.setDate(date.getDate() - i);
+        date.setHours(0, 0, 0, 0);
+
+        const nextDay = new Date(date);
+        nextDay.setDate(nextDay.getDate() + 1);
+
+        const dailySales = sales.value.filter(sale => {
+            if (!sale.created_at) return false;
+
+            const saleDate = new Date(sale.created_at);
+
+            return saleDate >= date && saleDate < nextDay;
+        });
+
+        const revenue = dailySales.reduce((total, sale) => {
+            return total + Number(sale.total || 0);
+        }, 0);
+
+        days.push({
+            label: new Intl.DateTimeFormat('en-NG', {
+                weekday: 'short',
+            }).format(date),
+
+            date: date,
+
+            revenue: revenue,
+
+            count: dailySales.length,
+        });
+    }
+
+    return days;
+});
+
+// ==============================
+// FORMATTING FUNCTIONS
+// ==============================
+
 function formatCurrency(amount) {
     return new Intl.NumberFormat('en-NG', {
         style: 'currency',
@@ -480,6 +623,10 @@ function formatDate(date) {
         year: 'numeric',
     }).format(parsedDate);
 }
+
+// ==============================
+// LOAD DASHBOARD DATA
+// ==============================
 
 async function loadDashboard() {
     loading.value = true;
@@ -510,6 +657,10 @@ async function loadDashboard() {
         loading.value = false;
     }
 }
+
+// ==============================
+// LIFECYCLE
+// ==============================
 
 onMounted(() => {
     loadDashboard();
