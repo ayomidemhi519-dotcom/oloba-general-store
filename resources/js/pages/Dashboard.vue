@@ -599,6 +599,40 @@ const salesChartData = computed(() => {
 });
 
 // ==============================
+// TOP SELLING PRODUCTS
+// ==============================
+
+const topSellingProducts = computed(() => {
+    const productMap = {};
+
+    sales.value.forEach(sale => {
+        (sale.items || []).forEach(item => {
+            const product = item.product;
+
+            if (!product) return;
+
+            if (!productMap[product.id]) {
+                productMap[product.id] = {
+                    id: product.id,
+                    name: product.name,
+                    sku: product.sku,
+                    quantitySold: 0,
+                    revenue: 0,
+                };
+            }
+
+            productMap[product.id].quantitySold += Number(item.quantity || 0);
+
+            productMap[product.id].revenue +=
+                Number(item.quantity || 0) * Number(item.unit_price || 0);
+        });
+    });
+
+    return Object.values(productMap)
+        .sort((a, b) => b.quantitySold - a.quantitySold)
+        .slice(0, 5);
+});
+// ==============================
 // FORMATTING FUNCTIONS
 // ==============================
 
@@ -645,6 +679,9 @@ async function loadDashboard() {
 
         products.value = productsResponse.data.data || [];
         sales.value = salesResponse.data.data || [];
+
+        console.log('First sale:', JSON.stringify(sales.value[0], null, 2));
+
         lowStockProducts.value = lowStockResponse.data.data || [];
 
         hasLoaded.value = true;
